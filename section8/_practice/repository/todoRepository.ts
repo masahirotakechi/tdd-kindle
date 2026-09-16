@@ -1,4 +1,3 @@
-
 type Todo = {
   title: string;
   completed: boolean;
@@ -30,6 +29,19 @@ class TodoRepository {
 
   fetchAll(): Todo[] {
     return this.todos;
+  }
+
+  // 自分の元のコード
+  // deleteById(id: number) {
+  //   const todo = this.findById(id);
+  //   if (!todo) return '存在しないデータです';
+
+  //   this.todos = this.todos.filter((todo) => todo.id !== id);
+  // }
+
+  // 修正後：「存在しないならエラーというビジネスルールを持つ必要はない
+  deleteById(id: number) {
+    this.todos = this.todos.filter((todo) => todo.id !== id);
   }
 }
 

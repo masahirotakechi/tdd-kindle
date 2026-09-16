@@ -131,3 +131,43 @@ test('同じタイトルが存在する場合、エラーになる', async () =>
   // 4. 結果を検証
   expect(mockRepo.save).not.toHaveBeenCalled();
 });
+
+// ------------ 演習問題2 ------------
+// 削除できる
+test('Todoを削除できる', async () => {
+  // 1. repoを作成
+  // findById が Todo を返す → 存在チェックを通過させる
+  const mockRepo = {
+    findById: jest.fn().mockReturnValue({ id: 1, title: 'ジムに行く', completed: false }),
+    deleteById: jest.fn(),
+  };
+
+  // 2. サービスを作成
+  const service = new TodoService(mockRepo);
+
+  // 3. サービスを使ってTodoを削除
+  await service.deleteById(1);
+
+  // 4. repo.deleteById が正しい引数で呼ばれたかを検証
+  expect(mockRepo.deleteById).toHaveBeenCalledWith(1);
+});
+
+// 存在しないIDの場合はエラーになる
+test('存在しないIDの場合、エラーになる', async () => {
+  // 1. repoを作成
+  // findById が undefined を返す → Todo が存在しない状態を再現
+  const mockRepo = {
+    findById: jest.fn().mockReturnValue(undefined),
+    deleteById: jest.fn(),
+  };
+
+  // 2. サービスを作成
+  const service = new TodoService(mockRepo);
+
+  // 3. サービスを使ってTodoを削除（存在しないID）
+  const result = service.deleteById(999);
+
+  // 4. エラーが発生し、deleteById は呼ばれないことを検証
+  await expect(result).rejects.toThrow('todoが存在しません');
+  expect(mockRepo.deleteById).not.toHaveBeenCalled();
+});

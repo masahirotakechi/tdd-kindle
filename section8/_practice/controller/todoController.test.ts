@@ -27,10 +27,10 @@ test('POST /todos', async () => {
     .send({ title: 'ジムに行く' }); // JSON ボディとして送信
 
   // レスポンスを検証
-  expect(response.status).toBe(201);                              // 作成成功のステータスコード
-  expect(response.body.title).toBe('ジムに行く');                 // 返却データの title を確認
+  expect(response.status).toBe(201); // 作成成功のステータスコード
+  expect(response.body.title).toBe('ジムに行く'); // 返却データの title を確認
   expect(mockService.create).toHaveBeenCalledWith('ジムに行く'); // Service が正しい引数で呼ばれたか確認
-  expect(response.body.completed).toBe(false);                   // 初期値は未完了であることを確認
+  expect(response.body.completed).toBe(false); // 初期値は未完了であることを確認
 });
 
 test('Serviceのcreateが失敗した場合', async () => {
@@ -83,8 +83,9 @@ test('GET /todos', async () => {
   const response = await request(app).get('/todos');
 
   // レスポンスを検証
-  expect(response.status).toBe(200);           // 取得成功のステータスコード
-  expect(response.body).toEqual([              // モックが返した配列がそのままレスポンスに含まれるか確認
+  expect(response.status).toBe(200); // 取得成功のステータスコード
+  expect(response.body).toEqual([
+    // モックが返した配列がそのままレスポンスに含まれるか確認
     { id: 1, title: 'ジムに行く', completed: false },
     { id: 2, title: '買い物に行く', completed: false },
   ]);
@@ -95,7 +96,9 @@ test('GET /todos', async () => {
 test('ServiceのfetchAllが失敗した場合', async () => {
   // fetchAll() を呼ぶと必ず Error をスローするモックを定義（失敗シナリオの再現）
   const mockService = {
-    fetchAll: jest.fn().mockRejectedValue(new Error('mockService データの取得に失敗しました')),
+    fetchAll: jest
+      .fn()
+      .mockRejectedValue(new Error('mockService データの取得に失敗しました')),
   };
 
   // Controllerを作成
@@ -114,4 +117,65 @@ test('ServiceのfetchAllが失敗した場合', async () => {
   // Service がエラーをスローした場合、Controller は 400 とエラーメッセージを返すことを確認
   expect(response.status).toBe(400);
   expect(response.body.error).toBe('データの取得に失敗しました');
+});
+
+// ----------- 演習問題2 -----------
+// 「DELETE /todos/:id でToDoを削除する」
+test('DELETE /todos/:id でToDoを削除する', async () => {
+  // arrange
+  // - モックServiceを作成
+  const mockService = {
+    deleteById: jest.fn().mockResolvedValue(undefined),
+  };
+
+  // - コントローラーを初期化
+  const controller = new TodoController(mockService);
+
+  // - Expressアプリを組み立て
+  const app = express();
+  app.use(express.json());
+  app.delete('/todos/:id', (req: any, res: any) => controller.delete(req, res));
+
+  // act
+  // - HTTPリクエストを送信
+  // supertest が実際の HTTP サーバーを立てずにリクエストを発行する
+  const response = await request(app).delete('/todos/1');
+
+  // assert
+  // - レスポンスを検証
+  expect(response.status).toBe(204);
+  expect(mockService.deleteById).toHaveBeenCalledWith(1);
+});
+
+// ----------- 演習問題2 -----------
+// 存在しないIDの場合は404を返す
+test('DELETE /todos/:id 存在しないIDの場合は404を返す', async () => {
+  // arrange
+  // - モックServiceを作成
+  const mockService = {
+    deleteById: jest
+      .fn()
+      .mockRejectedValue(new Error('mockService 存在しないIDです')),
+  };
+
+  // - コントローラーを初期化
+  const controller = new TodoController(mockService);
+
+  // - Expressアプリを組み立て
+  const app = express();
+  app.use(express.json());
+  app.delete('/todos/:id', (req: any, res: any) => {
+    controller.delete(req, res);
+  });
+
+  // act
+  // - HTTPリクエストを送信
+  const response = await request(app)
+    .delete('/todos/:id')
+    .send({ id: 'not-exist' });
+
+  // assert
+  // - レスポンスを検証
+  expect(response.status).toBe(404);
+  expect(response.body.error).toBe('データが見つかりません');
 });

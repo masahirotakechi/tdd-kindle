@@ -25,6 +25,21 @@ class TodoService {
   async fetchAll() {
     return this.repo.fetchAll();
   }
+
+  async deleteById(id: number) {
+    // IDが空かどうかをチェック
+    if (!id) {
+      return Promise.reject(new Error('IDが空です'));
+    }
+
+    // 同じIDのTodoが存在するかをチェック
+    const todo = await this.repo.findById(id);
+    if (!todo) {
+      return Promise.reject(new Error('todoが存在しません'));
+    }
+
+    return this.repo.deleteById(id);
+  }
 }
 
 export = TodoService;
