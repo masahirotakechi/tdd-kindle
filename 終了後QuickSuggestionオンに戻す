@@ -1,0 +1,18 @@
+## TODO: 補完設定を元に戻す
+
+学習終了後、VS Code の settings.json を以下の値に戻す：
+
+```json
+"editor.inlineSuggest.enabled": true,
+"github.copilot.enable": {
+  "*": true,
+  "yaml": false,
+  "plaintext": true,
+  "markdown": true,
+  "scminput": false,
+},
+"github.copilot.editor.enableAutoCompletions": true,
+"github.copilot.nextEditSuggestions.enabled": true,
+```
+
+手順: Cmd + Shift + P → "Open User Settings (JSON)"
