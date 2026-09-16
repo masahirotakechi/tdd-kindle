@@ -16,12 +16,12 @@ class TodoController {
     }
   }
 
-  async fetchAll(req: any, res: any) {
+  async fetchAll(_req: any, res: any) {
     try {
       const todos = await this.todoService.fetchAll();
       res.status(200).json(todos);
     } catch (error) {
-      res.status(400).json({ error: 'Failed to fetch todos' });
+      res.status(400).json({ error: 'データの取得に失敗しました' });
     }
   }
 }
