@@ -1,0 +1,29 @@
+# CI導入の実践: 自分のGitHubリポジトリに、プッシュ時にテストを実行するGitHub Actionsを設定してください。
+
+name: CI-sample
+
+on:
+  push: # main, developブランチへのプッシュ
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Node.js をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 依存関係をインストール
+        run: npm ci
+
+      - name: テストを実行
+        run: npm test
